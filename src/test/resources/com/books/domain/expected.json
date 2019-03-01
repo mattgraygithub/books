@@ -1,0 +1,56 @@
+{
+  "totalItems": 3,
+  "items": [
+    {
+      "volumeInfo": {
+        "authors": [
+          "book1Author0"
+        ],
+        "title": "book1Title",
+        "publisher": "book1Publisher",
+        "imageLinks": {
+          "smallThumbnail": "book1SmallThumbnail",
+          "thumbnail": "book1Thumbnail"
+        }
+      },
+      "saleInfo": {
+        "buyLink": "book1BuyLink"
+      }
+    },
+    {
+      "volumeInfo": {
+        "authors": [
+          "book2Author0",
+          "book2Author1"
+        ],
+        "title": "book2Title",
+        "publisher": "book2Publisher",
+        "imageLinks": {
+          "smallThumbnail": "book2SmallThumbnail",
+          "thumbnail": "book2Thumbnail"
+        }
+      },
+      "saleInfo": {
+        "buyLink": "book2BuyLink"
+      }
+    },
+    {
+      "volumeInfo": {
+        "authors": [
+          "book3Author0",
+          "book3Author1",
+          "book3Author2"
+        ],
+        "title": "book3Title",
+        "publisher": "book3Publisher",
+        "imageLinks": {
+          "smallThumbnail": "book3SmallThumbnail",
+          "thumbnail": "book3Thumbnail"
+        }
+      },
+      "saleInfo": {
+        "buyLink": "book3BuyLink"
+      }
+    }
+  ]
+}

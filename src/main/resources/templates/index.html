@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
+          integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous"/>
+    <link rel="stylesheet" href="style.css"/>
+    <title>Books</title>
+</head>
+<body>
+<div class="container h-100 d-flex justify-content-center">
+    <div class="my-auto">
+        <div class="my-auto" th:if="${searchResults != null}">
+            <h1>Search Results</h1>
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th>Author(s)</th>
+                    <th>Title</th>
+                    <th>Publisher</th>
+                    <th/>
+                    <th/>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="book : ${searchResults.items}">
+                    <td>
+                            <span th:each="author,iterStat : ${book.volumeInfo?.authors}">
+                                <br th:if="${iterStat.index > 0}"/>
+                                <span th:text="${{author}}"></span>
+                            </span>
+                    </td>
+                    <td th:text="${{book.volumeInfo?.title}}"></td>
+                    <td th:text="${{book.volumeInfo?.publisher}}"></td>
+                    <td><img th:src="${{book.volumeInfo?.imageLinks?.thumbnail}}"/></td>
+                    <td><a href="details.html" th:if="${book.saleInfo.buyLink != null}"
+                           th:href="${{book.saleInfo.buyLink}}" target="_blank">More Info</a></td>
+                </tr>
+                </tbody>
+            </table>
+            <br/>
+            <br/>
+            <div class="container h-100 d-flex justify-content-center">
+                <nav aria-label="Page navigation example">
+                    <ul class="pagination">
+                        <li class="page-item" th:classappend="${page == 1} ? disabled"><a class="page-link"
+                                                                                          th:href="${'/?q=' + query + '&page=' + (page-1) + '&pageSize=' + pageSize}">Previous</a>
+                        </li>
+                        <li class="page-item" th:each="paginationPage : ${pages}"
+                            th:classappend="${paginationPage == page} ? active"><a class="page-link"
+                                                                                   th:href="${'/?q=' + query + '&page=' + paginationPage + '&pageSize=' + pageSize}"><span
+                                th:text="${{paginationPage}}"></span></a></li>
+                        <li class="page-item"
+                            th:classappend="${page+1 > searchResults.getTotalItems() / pageSize} ? disabled"><a
+                                class="page-link"
+                                th:href="${'/?q=' + query + '&page=' + (page+1) + '&pageSize=' + pageSize}">Next</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+            <br/>
+            <br/>
+        </div>
+        <div class="jumbotron my-auto">
+            <form>
+                <div class="form-group">
+                    <label for="search">Search for book:</label>
+                    <input type="text" class="form-control" id="search" name="q"/>
+                </div>
+                <button type="submit" class="btn btn-primary">Go!</button>
+            </form>
+        </div>
+        <p th:if="${emptySearch}">Please enter some text in the search box!</p>
+        <p th:if="${invalidUrl!=null}" th:text="${invalidUrl}"></p>
+    </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+        crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js"
+        integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut"
+        crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js"
+        integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k"
+        crossorigin="anonymous"></script>
+</body>
+</html>
