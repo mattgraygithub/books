@@ -1,0 +1,33 @@
+version: 2
+jobs:
+  build:
+    working_directory: ~/project
+    docker:
+        - image: circleci/openjdk:8-jdk
+    steps:
+      - checkout:
+          path: ~/project
+      - restore_cache:
+          keys:
+            - books-{{ checksum "pom.xml" }}
+      - save_cache:
+          paths:
+            - ~/.m2
+          key: books-{{ checksum "pom.xml" }}
+      - run: mvn dependency:go-offline
+      - run:
+          name: Run Tests
+          command: mvn verify
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - run:
+          name: Package into jar
+          command: mvn clean package
+      - run:
+          name: Build and push to docker image to Docker Hub
+          command: |
+              echo "$DOCKER_HUB_PASS" | docker login -u "$DOCKER_HUB_USER_NAME" --password-stdin
+              mvn clean compile jib:build -Dimage=$DOCKER_HUB_USER_NAME/books:$CIRCLE_BUILD_NUM
+      - store_artifacts:
+          path: target/classes
+          destination: books
