@@ -31,3 +31,4 @@ jobs:
       - store_artifacts:
           path: target/classes
           destination: books
+
