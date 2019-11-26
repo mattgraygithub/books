@@ -21,6 +21,7 @@ jobs:
       - run:
           name: Package into jar
           command: mvn clean package
+      - setup_remote_docker
       - run:
           name: Build Docker Image
           command: |
