@@ -24,7 +24,7 @@ jobs:
       - run:
           name: Build Docker Image
           command: |
-            cd .. && docker build -t mattgraygithub/books:${CIRCLE_SHA1} .
+            docker build -t mattgraygithub/books:${CIRCLE_SHA1} .
             docker tag mattgraygithub/books:${CIRCLE_SHA1} mattgraygithub/books:latest
       - run:
           name: Push docker image to Docker Hub
