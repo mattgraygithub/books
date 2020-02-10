@@ -25,14 +25,11 @@ jobs:
       - run:
           name: Build Docker Image
           command: |
-            docker build -t mattgraygithub/books:${CIRCLE_SHA1} .
-            docker tag mattgraygithub/books:${CIRCLE_SHA1} mattgraygithub/books:latest
+            docker build -t mattgraydocker/books:${CIRCLE_SHA1} .
+            docker tag mattgraydocker/books:${CIRCLE_SHA1} mattgraydocker/books:latest
       - run:
           name: Push docker image to Docker Hub
           command: |
               echo "$DOCKER_HUB_PASS" | docker login -u "$DOCKER_HUB_USER_NAME" --password-stdin
-              docker push mattgraygithub/books:${CIRCLE_SHA1}
-              docker push mattgraygithub/books:latest
-      - store_artifacts:
-          path: target/classes
-          destination: books
+              docker push mattgraydocker/books:${CIRCLE_SHA1}
+              docker push mattgraydocker/books:latest
