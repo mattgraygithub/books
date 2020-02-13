@@ -1,9 +1,12 @@
 version: 2
+orbs:
+  aws-ecr: circleci/aws-ecr@6.7.0
+  aws-ecs: circleci/aws-ecs@0.0.10
 jobs:
   build:
     working_directory: ~/project
     docker:
-        - image: circleci/openjdk:8-jdk
+      - image: circleci/openjdk:8-jdk
     steps:
       - checkout:
           path: ~/project
@@ -21,15 +24,27 @@ jobs:
       - run:
           name: Package into jar
           command: mvn clean package
-      - setup_remote_docker
-      - run:
-          name: Build Docker Image
-          command: |
-            docker build -t mattgraydocker/books:${CIRCLE_SHA1} .
-            docker tag mattgraydocker/books:${CIRCLE_SHA1} mattgraydocker/books:latest
-      - run:
-          name: Push docker image to Docker Hub
-          command: |
-              echo "$DOCKER_HUB_PASS" | docker login -u "$DOCKER_HUB_USER_NAME" --password-stdin
-              docker push mattgraydocker/books:${CIRCLE_SHA1}
-              docker push mattgraydocker/books:latest
+
+build-and-deploy:
+  jobs:
+    - aws-ecr/build_and_push_image:
+        account-url: "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com"
+        repo: "${AWS_RESOURCE_NAME_PREFIX}"
+        region: ${AWS_DEFAULT_REGION}
+        tag: "${CIRCLE_SHA1}"
+    - aws-ecs/deploy-service-update:
+        requires:
+          - aws-ecr/build_and_push_image
+        aws-region: ${AWS_DEFAULT_REGION}
+        family: "${AWS_RESOURCE_NAME_PREFIX}-service"
+        cluster-name: "${AWS_RESOURCE_NAME_PREFIX}-cluster"
+        container-image-name-updates: "container=${AWS_RESOURCE_NAME_PREFIX}-service,image-and-tag=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${AWS_RESOURCE_NAME_PREFIX}:${CIRCLE_SHA1}"
+        verify-revision-is-deployed: true
+        post-steps:
+          - run:
+              name: Test the deployment
+              command: |
+                TARGET_GROUP_ARN=$(aws ecs describe-services --cluster ${AWS_RESOURCE_NAME_PREFIX}-cluster --services ${AWS_RESOURCE_NAME_PREFIX}-service | jq -r '.services[0].loadBalancers[0].targetGroupArn')
+                ELB_ARN=$(aws elbv2 describe-target-groups --target-group-arns $TARGET_GROUP_ARN | jq -r '.TargetGroups[0].LoadBalancerArns[0]')
+                ELB_DNS_NAME=$(aws elbv2 describe-load-balancers --load-balancer-arns $ELB_ARN | jq -r '.LoadBalancers[0].DNSName')
+                curl -s --retry 10 http://$ELB_DNS_NAME | grep "Books"

@@ -1,3 +1,5 @@
 .idea
 *iml
 target
+terraform_setup/.terraform
+terraform_setup/terraform.tfvars
