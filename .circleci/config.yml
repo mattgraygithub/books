@@ -7,13 +7,6 @@ jobs:
     steps:
       - checkout:
           path: ~/project
-#      - restore_cache:
-#          keys:
-#            - books-{{ checksum "pom.xml" }}
-#      - save_cache:
-#          paths:
-#            - ~/.m2
-#          key: books-{{ checksum "pom.xml" }}
       - run: mvn dependency:go-offline
       - run:
           name: Run Tests
@@ -30,6 +23,15 @@ jobs:
       - run:
           name: Push docker image to Docker Hub
           command: |
-              echo "$DOCKER_HUB_PASS" | docker login -u "$DOCKER_HUB_USER_NAME" --password-stdin
-              docker push mattgraydh/books:${CIRCLE_SHA1}
-              docker push mattgraydh/books:latest
+            echo "$DOCKER_HUB_PASS" | docker login -u "$DOCKER_HUB_USER_NAME" --password-stdin
+            docker push mattgraydh/books:${CIRCLE_SHA1}
+            docker push mattgraydh/books:latest
+      - run:
+          name: Connect to EC2 instance
+          command: ssh -i "books.pem" ec2-user@ec2-18-212-105-75.compute-1.amazonaws.com
+      - run:
+          name: Install docker on EC2 instance
+          command: sudo service docker start
+      - run:
+          name: Run application
+          command: sudo docker run -p 80:8080 books:latest
