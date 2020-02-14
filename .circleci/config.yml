@@ -22,23 +22,13 @@ jobs:
           name: Package into jar
           command: mvn clean package
       - run:
-          name: Login to DockerHub
-          command: docker login -u $DOCKER_HUB_USER_NAME -p $DOCKER_HUB_PASS
+          name: Build Docker Image
+          command: |
+            docker build -t mattgraydh/books:${CIRCLE_SHA1} .
+            docker tag mattgraydh/books:${CIRCLE_SHA1} mattgraydh/books:latest
       - run:
-          name: Build and Push Docker Image to Docker Hub
-          command: mvn clean compile jib:build -Dimage=books:$CIRCLE_BUILD_NUM
-
-
-
-
-#      - run:
-#          name: Build Docker Image
-#          command: |
-#            docker build -t mattgraydh/books:${CIRCLE_SHA1} .
-#            docker tag mattgraydh/books:${CIRCLE_SHA1} mattgraydh/books:latest
-#      - run:
-#          name: Push docker image to Docker Hub
-#          command: |
-#              echo "$DOCKER_HUB_PASS" | docker login -u "$DOCKER_HUB_USER_NAME" --password-stdin
-#              docker push mattgraydh/books:${CIRCLE_SHA1}
-#              docker push mattgraydh/books:latest
+          name: Push docker image to Docker Hub
+          command: |
+              echo "$DOCKER_HUB_PASS" | docker login -u "$DOCKER_HUB_USER_NAME" --password-stdin
+              docker push mattgraydh/books:${CIRCLE_SHA1}
+              docker push mattgraydh/books:latest
