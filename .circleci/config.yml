@@ -21,8 +21,6 @@ jobs:
       - run:
           name: Package into jar
           command: mvn clean package
-      - setup_remote_docker:
-          docker_layer_caching: true
       - run:
           name: Login to DockerHub
           command: docker login -u $DOCKER_HUB_USER_NAME -p $DOCKER_HUB_PASS
