@@ -37,4 +37,4 @@ jobs:
 
         - run:
             name: Run application
-            command: sudo docker run -p 80:8080 books:latest
+            command: sudo service docker start
