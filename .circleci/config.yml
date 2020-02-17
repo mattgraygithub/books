@@ -26,12 +26,15 @@ jobs:
             echo "$DOCKER_HUB_PASS" | docker login -u "$DOCKER_HUB_USER_NAME" --password-stdin
             docker push mattgraydh/books:${CIRCLE_SHA1}
             docker push mattgraydh/books:latest
-      - run:
-          name: Connect to EC2 instance
-          command: ssh -i "books.pem" ec2-user@ec2-18-212-105-75.compute-1.amazonaws.com
-      - run:
-          name: Install docker on EC2 instance
-          command: sudo service docker start
-      - run:
-          name: Run application
-          command: sudo docker run -p 80:8080 books:latest
+    deploy:
+      steps:
+        - add_ssh_keys:
+            fingerprints:
+              - "5e:23:ba:40:77:61:58:c9:c4:2e:cc:1a:44:93:ba:bc"
+        - run:
+            name: Connect to EC2 instance
+            command: ssh ec2-user@ec2-18-212-105-75.compute-1.amazonaws.com
+
+        - run:
+            name: Run application
+            command: sudo docker run -p 80:8080 books:latest
