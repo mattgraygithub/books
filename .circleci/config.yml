@@ -28,12 +28,27 @@ jobs:
             docker push mattgraydh/books:latest
     deploy:
       steps:
-        - add_ssh_keys:
-            fingerprints:
-              - "5e:23:ba:40:77:61:58:c9:c4:2e:cc:1a:44:93:ba:bc"
+        - run:
+          name: Install AWS CLI
+          command: curl "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip" -o "awscli-bundle.zip"
+            unzip awscli-bundle.zip
+            ./awscli-bundle/install -b ~/bin/aws
+
+        - run:
+            name: Get public IP of current CircleCI runner
+            command: PUBLIC_IP=$(curl ipinfo.io/ip)
+
+        - run:
+            name: Get AWS Region
+            command: AWS_REGION=us-east-1
+
+        - run:
+            name: Get SG ID
+            command: SG_ID=sg-063c0f062b90d3bad
+
         - run:
             name: Connect to EC2 instance
-            command: ssh ec2-user@ec2-18-212-105-75.compute-1.amazonaws.com
+            command: ssh -i ec2-user@ec2-18-212-105-75.compute-1.amazonaws.com
 
         - run:
             name: Run docker container
