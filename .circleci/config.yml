@@ -47,9 +47,22 @@ jobs:
             command: SG_ID=sg-063c0f062b90d3bad
 
         - run:
+            name: Add an ingress rule to the security group
+            command: ~/bin/aws ec2 authorize-security-group-ingress --region $AWS_REGION --group-id $SG_ID \
+              --protocol tcp --port 22 --cidr $PUBLIC_IP/24
+
+        - run:
+            command: sleep 5
+
+        - run:
             name: Connect to EC2 instance
             command: ssh -i ec2-user@ec2-18-212-105-75.compute-1.amazonaws.com
 
         - run:
             name: Run docker container
             command: sudo docker run -p 80:8080 mattgraydh/books
+
+        - run:
+            name: Remove ingress rule
+            command: ~/bin/aws ec2 revoke-security-group-ingress --region $AWS_REGION --group-id $SG_ID \
+              --protocol tcp --port 22 --cidr $PUBLIC_IP/24
