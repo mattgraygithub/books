@@ -26,6 +26,13 @@ mvn spring-boot:run
 
 Then go to [http://localhost:8080](http://localhost:8080)
 
+Or if you prefer you can run the application in a docker container:
+
+```
+docker build -t books . 
+docker run -p 8080:8080 books:latest
+```
+
 ## Running the tests
 
 ```
@@ -34,7 +41,8 @@ mvn verify
 
 ## View the deployed application
 
-[https://mattgraybooks.herokuapp.com](https://mattgraybooks.herokuapp.com)
+The app is deployed on AWS here:
+[http://ec2-18-212-105-75.compute-1.amazonaws.com/](http://ec2-18-212-105-75.compute-1.amazonaws.com/)
 
 ## Languages/frameworks used and reasoning
 
