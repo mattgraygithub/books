@@ -44,15 +44,10 @@ mvn verify
 The app is deployed on AWS here:
 [http://ec2-18-212-105-75.compute-1.amazonaws.com/](http://ec2-18-212-105-75.compute-1.amazonaws.com/)
 
-## Languages/frameworks used and reasoning
+## Languages/frameworks used
 
 - Java
--- The language I am most comfortable with.
 - Maven
--- The build tool I am most familiar with.
 - Spring Boot
--- Easy to rapidly prototype applications due to convention over configuration.
 - Thymeleaf
--- Required to pass Java objects to the view.
 - HtmlUnit 
--- Enabled headless browser testing.
