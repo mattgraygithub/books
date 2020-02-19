@@ -14,6 +14,7 @@ jobs:
       - run:
           name: Package into jar
           command: mvn clean package
+
       - setup_remote_docker
       - run:
           name: Build Docker Image
@@ -26,52 +27,14 @@ jobs:
             echo "$DOCKER_HUB_PASS" | docker login -u "$DOCKER_HUB_USER_NAME" --password-stdin
             docker push mattgraydh/books:${CIRCLE_SHA1}
             docker push mattgraydh/books:latest
-  deploy:
-    steps:
+
+      - add_ssh_keys
       - run:
-          name: Connect to EC2 instance
-          command: ssh ec2-user@ec2-18-212-105-75.compute-1.amazonaws.com
-
+          name: Add fingerprint to known hosts
+          command: echo 'ec2-18-212-105-75.compute-1.amazonaws.com ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDWLwsIhAOoZZms+G9vUXHSz45cImnGk7GIYnxuXCvmeSDb7rQOp9afX1s67Kd2WAP4wY+7fkZG8hCWI/EJWHBVe3cAkAj6VmOZlFFduNDAJCl3Iv6B0livlLqti29DQ1RRdCacprBdSopWIqLF+ZwId1OwQx+bh5lQVKv6Tkwx9O0udYfCtxQo4k47xo0B8uBF52FZJRFtCmin7Zv7tgGPP1KrHcv3On6lYPEBUAZj1Nv2tAqFdZCVkoXfVYtwbhhptShWLNdPAObYiOTI6axis4Jv8C2V5ZvDHMXI9M4i680exNsuo3VNMf8+XvlW7IwJhGMJ5Hb/p0+hsaNk2VPh' >> ~/.ssh/known_hosts
       - run:
-          name: Run docker container
-          command: sudo docker run -p 80:8080 mattgraydh/books
-
-
-
-
-
-#        - run:
-#          name: Install AWS CLI
-#          command: curl "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip" -o "awscli-bundle.zip"
-#            unzip awscli-bundle.zip
-#            ./awscli-bundle/install -b ~/bin/aws
-#
-#        - run:
-#            name: Get public IP of current CircleCI runner
-#            command: PUBLIC_IP=$(curl ipinfo.io/ip)
-#
-#        - run:
-#            name: Get AWS Region
-#            command: AWS_REGION=us-east-1
-#
-#        - run:
-#            name: Get SG ID
-#            command: SG_ID=sg-063c0f062b90d3bad
-#
-#        - run:
-#            name: Add an ingress rule to the security group
-#            command: ~/bin/aws ec2 authorize-security-group-ingress --region $AWS_REGION --group-id $SG_ID \
-#              --protocol tcp --port 22 --cidr $PUBLIC_IP/24
-#
-#        - run:
-#            command: sleep 5
-
-
-
-
-
-
-#        - run:
-#            name: Remove ingress rule
-#            command: ~/bin/aws ec2 revoke-security-group-ingress --region $AWS_REGION --group-id $SG_ID \
-#              --protocol tcp --port 22 --cidr $PUBLIC_IP/24
+          name: Stop container if already running
+          command: ssh ec2-user@ec2-18-212-105-75.compute-1.amazonaws.com docker stop books || true
+      - run:
+          name: Run container on EC2 instance
+          command: ssh ec2-user@ec2-18-212-105-75.compute-1.amazonaws.com docker run --rm -d --name books -p 80:8080 mattgraydh/books:${CIRCLE_SHA1}
