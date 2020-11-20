@@ -1,4 +1,4 @@
-version: 2
+version: 2.1
 
 orbs:
   aws-ecr: circleci/aws-ecr@6.14.0
@@ -21,21 +21,17 @@ jobs:
           name: Package into jar
           command: mvn clean package
 
-  aws-ecr/build-and-push-image:
-    repo: "${AWS_RESOURCE_NAME_PREFIX}"
-    tag: "${CIRCLE_SHA1}"
-
-  aws-ecs/deploy-service-update:
-    family: "${AWS_RESOURCE_NAME_PREFIX}-service"
-    cluster-name: "${AWS_RESOURCE_NAME_PREFIX}-cluster"
-    container-image-name-updates: "container=${AWS_RESOURCE_NAME_PREFIX}-service,tag=${CIRCLE_SHA1}"
-
 workflows:
-  build-deploy:
+  build-and-deploy:
     jobs:
       - build
-      - deploy
-      - aws-ecr/build-and-push-image
+      - aws-ecr/build-and-push-image:
+          repo: "${AWS_RESOURCE_NAME_PREFIX}"
+          tag: "${CIRCLE_SHA1}"
+
       - aws-ecs/deploy-service-update:
           requires:
             - aws-ecr/build-and-push-image
+          family: "${AWS_RESOURCE_NAME_PREFIX}-service"
+          cluster-name: "${AWS_RESOURCE_NAME_PREFIX}-cluster"
+          container-image-name-updates: "container=${AWS_RESOURCE_NAME_PREFIX}-service,tag=${CIRCLE_SHA1}"
