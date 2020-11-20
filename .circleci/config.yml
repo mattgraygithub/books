@@ -23,7 +23,7 @@ jobs:
       - persist_to_workspace:
           root: .
           paths:
-            - target/application.jar
+            - target/app.jar
             - build/*
 
 workflows:
