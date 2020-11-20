@@ -1,4 +1,9 @@
 version: 2
+
+orbs:
+  aws-ecr: circleci/aws-ecr@6.14.0
+  aws-ecs: circleci/aws-ecs@1.4.0
+
 jobs:
   build:
     working_directory: ~/project
@@ -7,6 +12,7 @@ jobs:
     steps:
       - checkout:
           path: ~/project
+      - setup_remote_docker
       - run: mvn dependency:go-offline
       - run:
           name: Run Tests
@@ -15,26 +21,21 @@ jobs:
           name: Package into jar
           command: mvn clean package
 
-      - setup_remote_docker
-      - run:
-          name: Build Docker Image
-          command: |
-            docker build -t mattgraydh/books:${CIRCLE_SHA1} .
-            docker tag mattgraydh/books:${CIRCLE_SHA1} mattgraydh/books:latest
-      - run:
-          name: Push docker image to Docker Hub
-          command: |
-            echo "$DOCKER_HUB_PASS" | docker login -u "$DOCKER_HUB_USER_NAME" --password-stdin
-            docker push mattgraydh/books:${CIRCLE_SHA1}
-            docker push mattgraydh/books:latest
+  aws-ecr/build-and-push-image:
+    repo: "${AWS_RESOURCE_NAME_PREFIX}"
+    tag: "${CIRCLE_SHA1}"
 
-      - add_ssh_keys
-      - run:
-          name: Add fingerprint to known hosts
-          command: echo 'ec2-18-212-105-75.compute-1.amazonaws.com ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDWLwsIhAOoZZms+G9vUXHSz45cImnGk7GIYnxuXCvmeSDb7rQOp9afX1s67Kd2WAP4wY+7fkZG8hCWI/EJWHBVe3cAkAj6VmOZlFFduNDAJCl3Iv6B0livlLqti29DQ1RRdCacprBdSopWIqLF+ZwId1OwQx+bh5lQVKv6Tkwx9O0udYfCtxQo4k47xo0B8uBF52FZJRFtCmin7Zv7tgGPP1KrHcv3On6lYPEBUAZj1Nv2tAqFdZCVkoXfVYtwbhhptShWLNdPAObYiOTI6axis4Jv8C2V5ZvDHMXI9M4i680exNsuo3VNMf8+XvlW7IwJhGMJ5Hb/p0+hsaNk2VPh' >> ~/.ssh/known_hosts
-      - run:
-          name: Stop container if already running
-          command: ssh ec2-user@ec2-18-212-105-75.compute-1.amazonaws.com docker stop books || true
-      - run:
-          name: Run container on EC2 instance
-          command: ssh ec2-user@ec2-18-212-105-75.compute-1.amazonaws.com docker run --rm -d --name books -p 80:8080 mattgraydh/books:${CIRCLE_SHA1}
+  aws-ecs/deploy-service-update:
+    family: "${AWS_RESOURCE_NAME_PREFIX}-service"
+    cluster-name: "${AWS_RESOURCE_NAME_PREFIX}-cluster"
+    container-image-name-updates: "container=${AWS_RESOURCE_NAME_PREFIX}-service,tag=${CIRCLE_SHA1}"
+
+workflows:
+  build-deploy:
+    jobs:
+      - build
+      - deploy
+      - aws-ecr/build-and-push-image
+      - aws-ecs/deploy-service-update:
+          requires:
+            - aws-ecr/build-and-push-image
