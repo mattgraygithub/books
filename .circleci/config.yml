@@ -12,7 +12,6 @@ jobs:
     steps:
       - checkout:
           path: ~/project
-      - setup_remote_docker
       - run: mvn dependency:go-offline
       - run:
           name: Run Tests
@@ -20,10 +19,12 @@ jobs:
       - run:
           name: Package into jar
           command: mvn clean package
+      - store_artifacts:
+          path: /target
       - persist_to_workspace:
-          root: ./
+          root: .
           paths:
-            - target/
+            - /target
 
 workflows:
   build-and-deploy:
