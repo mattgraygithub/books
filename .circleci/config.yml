@@ -5,29 +5,28 @@ orbs:
   aws-ecs: circleci/aws-ecs@1.4.0
 
 jobs:
-  build:
-    working_directory: ~/project
-    docker:
-      - image: circleci/openjdk:8-jdk
-    steps:
-      - checkout:
-          path: ~/project
-      - setup_remote_docker
-      - run: mvn dependency:go-offline
-      - run:
-          name: Run Tests
-          command: mvn verify
-      - run:
-          name: Package into jar
-          command: mvn clean package
+  working_directory: ~/project
+  docker:
+    - image: circleci/openjdk:8-jdk
+  steps:
+    - checkout:
+        path: ~/project
+    - setup_remote_docker
+    - run: mvn dependency:go-offline
+    - run:
+      name: Run Tests
+      command: mvn verify
+    - run:
+      name: Package into jar
+      command: mvn clean package
 
-      - aws-ecr/build-and-push-image:
-          repo: "${AWS_RESOURCE_NAME_PREFIX}"
-          tag: "${CIRCLE_SHA1}"
+    - aws-ecr/build-and-push-image:
+        repo: "${AWS_RESOURCE_NAME_PREFIX}"
+        tag: "${CIRCLE_SHA1}"
 
-      - aws-ecs/deploy-service-update:
-          requires:
-            - aws-ecr/build-and-push-image
-          family: "${AWS_RESOURCE_NAME_PREFIX}-service"
-          cluster-name: "${AWS_RESOURCE_NAME_PREFIX}-cluster"
-          container-image-name-updates: "container=${AWS_RESOURCE_NAME_PREFIX}-service,tag=${CIRCLE_SHA1}"
+    - aws-ecs/deploy-service-update:
+        requires:
+          - aws-ecr/build-and-push-image
+        family: "${AWS_RESOURCE_NAME_PREFIX}-service"
+        cluster-name: "${AWS_RESOURCE_NAME_PREFIX}-cluster"
+        container-image-name-updates: "container=${AWS_RESOURCE_NAME_PREFIX}-service,tag=${CIRCLE_SHA1}"
