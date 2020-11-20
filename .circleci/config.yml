@@ -21,13 +21,7 @@ jobs:
           name: Package into jar
           command: mvn clean package
 
-workflows:
-  build-and-deploy:
-    jobs:
-      - build
       - aws-ecr/build-and-push-image:
-          requires:
-            - build
           repo: "${AWS_RESOURCE_NAME_PREFIX}"
           tag: "${CIRCLE_SHA1}"
 
