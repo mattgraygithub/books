@@ -23,7 +23,8 @@ jobs:
       - persist_to_workspace:
           root: .
           paths:
-            - target/*
+            - target/application.jar
+            - build/*
 
 workflows:
   build-and-deploy:
