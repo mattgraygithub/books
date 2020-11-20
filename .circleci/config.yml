@@ -20,11 +20,11 @@ jobs:
           name: Package into jar
           command: mvn clean package
       - store_artifacts:
-          path: /target
+        path: target/*.jar
       - persist_to_workspace:
-          root: ~/project
+          root: ~/project/target
           paths:
-            - /target
+            - app.jar
 
 workflows:
   build-and-deploy:
