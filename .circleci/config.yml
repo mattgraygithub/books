@@ -31,10 +31,9 @@ workflows:
       - aws-ecr/build-and-push-image:
           requires:
             - build
-          account-url: AWS_ECR_ACCOUNT_URL
-          region: AWS_REGION
           repo: "${AWS_RESOURCE_NAME_PREFIX}"
           tag: "${CIRCLE_SHA1}"
+          skip-task-definition-registration: true
 
       - aws-ecs/deploy-service-update:
           requires:
