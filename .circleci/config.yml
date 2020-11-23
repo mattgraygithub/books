@@ -32,7 +32,7 @@ workflows:
           requires:
             - build
           account-url: AWS_ECR_ACCOUNT_URL
-          region: "${AWS_REGION}"
+          region: AWS_REGION
           repo: "${AWS_RESOURCE_NAME_PREFIX}"
           tag: "${CIRCLE_SHA1}"
 
