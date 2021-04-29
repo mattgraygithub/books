@@ -8,7 +8,7 @@ jobs:
   build:
     working_directory: ~/project
     docker:
-      - image: circleci/openjdk:8-jdk
+      - image: circleci/openjdk:11-jdk
     steps:
       - checkout:
           path: ~/project
@@ -22,7 +22,7 @@ jobs:
       - persist_to_workspace:
           root: ./
           paths:
-            - target/
+            - target/books-1.0-SNAPSHOT.jar
 
 workflows:
   build-and-deploy:
@@ -40,4 +40,3 @@ workflows:
           family: "${AWS_RESOURCE_NAME_PREFIX}-service"
           cluster-name: "${AWS_RESOURCE_NAME_PREFIX}-cluster"
           container-image-name-updates: "container=${AWS_RESOURCE_NAME_PREFIX}-service,tag=${CIRCLE_SHA1}"
-          skip-task-definition-registration: true
