@@ -1,7 +1,5 @@
-FROM maven:latest
+FROM openjdk:11.0.11-slim
 
-COPY . /root
+COPY target/books-1.0-SNAPSHOT.jar books-1.0-SNAPSHOT.jar
 
-WORKDIR /root
-
-CMD ["mvn", "spring-boot:run"]
+ENTRYPOINT ["java", "-jar", "/books-1.0-SNAPSHOT.jar"]
