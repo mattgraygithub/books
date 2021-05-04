@@ -22,7 +22,7 @@ jobs:
       - persist_to_workspace:
           root: ./
           paths:
-            - target/books-1.0-SNAPSHOT.jar
+            - target/
 
 workflows:
   build-and-deploy:
