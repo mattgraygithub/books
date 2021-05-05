@@ -5,7 +5,7 @@ orbs:
   aws-ecs: circleci/aws-ecs@2.2.1
 
 jobs:
-  build:
+  test:
     working_directory: ~/project
     docker:
       - image: circleci/openjdk:11-jdk
@@ -16,14 +16,13 @@ jobs:
       - run:
           name: Run Tests
           command: mvn verify
-      - run:
-          name: Package into jar
-          command: mvn clean package
 
 workflows:
+  test:
+    jobs:
+      - test
   build-and-deploy:
     jobs:
-      - build
       - aws-ecr/build-and-push-image:
           repo: "${AWS_RESOURCE_NAME_PREFIX}"
           tag: "${CIRCLE_SHA1}"
