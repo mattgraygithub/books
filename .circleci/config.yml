@@ -18,11 +18,9 @@ jobs:
           command: mvn verify
 
 workflows:
-  test:
+  test-build-and-deploy:
     jobs:
       - test
-  build-and-deploy:
-    jobs:
       - aws-ecr/build-and-push-image:
           repo: "${AWS_RESOURCE_NAME_PREFIX}"
           tag: "${CIRCLE_SHA1}"
