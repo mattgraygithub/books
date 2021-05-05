@@ -39,10 +39,9 @@ docker run -p 8080:8080 books:latest
 mvn verify
 ```
 
-## View the deployed application
+## Pipeline and deployment
 
-The app is deployed on AWS here:
-[http://ec2-18-212-105-75.compute-1.amazonaws.com/](http://ec2-18-212-105-75.compute-1.amazonaws.com/)
+There is also a circleci pipeline which tests the application, builds the docker image, pushes it to an Amazon ECR repo and deploys it to a service running on ECS. See .circleci/ for details.
 
 ## Languages/frameworks used
 
